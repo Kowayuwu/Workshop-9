@@ -15,6 +15,7 @@ public class SwarmManager : MonoBehaviour
     [SerializeField] private float stepTime;
     [SerializeField] private float leftBoundaryX;
     [SerializeField] private float rightBoundaryX;
+    private float xDirection = 1.0f;
 
     private void Start()
     {
@@ -35,6 +36,7 @@ public class SwarmManager : MonoBehaviour
     
     private IEnumerator StepSwarmPeriodically() 
     {
+        //stepTime = 0.5f;
         // Yep, this is an infinite loop, but the gameplay isn't ever "halted"
         // since the function is invoked as a coroutine. It's also automatically 
         // stopped when the game object is destroyed.
@@ -49,7 +51,22 @@ public class SwarmManager : MonoBehaviour
     // attributes/parameters.
     private void GenerateSwarm()
     {
+        int row = 10;
+        int column = 5;
+        Vector3 spawnPosition = new Vector3(-2, 0, 0);
+        Vector3 rowSpace = new Vector3(1, 0, 0);
+        Vector3 columnSpace = new Vector3(0, 0, 2);
+
         // Write code here...
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < column; j++)
+            {
+                var enemy = Instantiate(enemyTemplate, transform);
+                enemy.transform.localPosition = spawnPosition + columnSpace*j + rowSpace*i;
+            }
+            spawnPosition += rowSpace;
+        }
+
     }
 
     // Step the swarm across the screen, based on the current direction, or down
@@ -57,6 +74,17 @@ public class SwarmManager : MonoBehaviour
     private void StepSwarm()
     {
         // Write code here...
+        var dropping = xDirection < 0f && transform.position.x <= leftBoundaryX ||
+                        xDirection > 0f && transform.position.x + (enemyCols - 1) * 1 >= rightBoundaryX;
+        if (dropping)
+        {
+            transform.Translate(Vector3.back * stepSize);
+            xDirection *= -1;
+        }
+        else
+        {
+            transform.Translate(Vector3.right*stepSize*xDirection);
+        }
         
         // Tip: You probably want a private variable to keep track of the
         // direction the swarm is moving. You could alternate this between 1 and
